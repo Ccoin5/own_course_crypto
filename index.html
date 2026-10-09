@@ -3,175 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Web App UI</title>
+    <title>CryptoGuide LIVE</title>
     
-    <!-- Telegram Web App SDK -->
+    <!-- Подключение Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- Tailwind CSS (CDN для быстрого прототипирования) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Настройка Tailwind для использования цветов темы Telegram -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        tgBg: 'var(--tg-theme-bg-color, #ffffff)',
-                        tgText: 'var(--tg-theme-text-color, #000000)',
-                        tgHint: 'var(--tg-theme-hint-color, #999999)',
-                        tgButton: 'var(--tg-theme-button-color, #3390ec)',
-                        tgButtonText: 'var(--tg-theme-button-text-color, #ffffff)',
-                        tgSecondaryBg: 'var(--tg-theme-secondary-bg-color, #f0f0f0)',
+                        appBg: '#13151b',      /* Основной темный фон */
+                        cardBg: '#1c1f2a',     /* Фон карточек */
+                        accent: '#f7931a',     /* Оранжевый бренд-цвет */
+                        textGray: '#8b8e9b',   /* Серый текст */
+                        upGreen: '#0ecb81',    /* Зеленый рост */
+                        downRed: '#f6465d'     /* Красное падение */
                     }
                 }
             }
         }
     </script>
-    
     <style>
-        body {
-            background-color: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            /* Предотвращаем выделение текста и нативное скроллирование за пределы экрана */
-            -webkit-user-select: none;
-            user-select: none;
-        }
-        /* Плавное скрытие/появление экранов */
-        .fade-enter { opacity: 0; transform: translateY(10px); }
-        .fade-enter-active { opacity: 1; transform: translateY(0); transition: all 0.3s ease-out; }
+        body { background-color: #13151b; color: #ffffff; }
+        /* Скрытие скроллбара для горизонтальных меню */
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="p-4 font-sans antialiased">
+<body class="font-sans antialiased flex flex-col md:flex-row min-h-screen">
 
-    <!-- ЭКРАН 1: PAYWALL (Выбор тарифа) -->
-    <div id="paywall-view" class="max-w-md mx-auto fade-enter-active">
-        
-        <div class="text-center mb-8 mt-4">
-            <h1 class="text-2xl font-bold mb-2">Доступ к материалам</h1>
-            <p class="text-tgHint text-sm">Выберите подходящий тариф. Оплата производится в USDT или USDC.</p>
+    <!-- БОКОВОЕ МЕНЮ (Мобильная навигация снизу, на десктопе - слева) -->
+    <nav class="md:w-64 bg-cardBg p-4 hidden md:block border-r border-gray-800">
+        <div class="flex items-center text-accent font-bold text-xl mb-8">
+            <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 6l6.5 13h-13L12 8z"/></svg>
+            CryptoGuide <span class="text-xs text-upGreen ml-2">LIVE</span>
         </div>
+        <ul class="space-y-2">
+            <li class="bg-accent text-white rounded-lg px-4 py-2 font-medium cursor-pointer">Главная</li>
+            <li class="text-textGray hover:text-white px-4 py-2 cursor-pointer transition">Тарифы</li>
+            <li class="text-textGray hover:text-white px-4 py-2 cursor-pointer transition">Гайды</li>
+            <li class="text-textGray hover:text-white px-4 py-2 cursor-pointer transition">Профиль</li>
+        </ul>
+    </nav>
 
-        <div class="space-y-4">
-            <!-- Карточка: Базовый тариф -->
-            <div class="bg-tgSecondaryBg rounded-2xl p-5 border border-transparent hover:border-tgButton transition-colors">
-                <div class="flex justify-between items-center mb-2">
-                    <h2 class="text-lg font-semibold">Базовый</h2>
-                    <span class="text-tgHint text-sm">1 месяц</span>
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main class="flex-1 p-4 overflow-y-auto">
+        
+        <!-- Верхняя панель (Тикер) -->
+        <header class="flex justify-between items-center mb-6 text-sm border-b border-gray-800 pb-3">
+            <div class="flex space-x-4">
+                <span class="text-textGray">BTC/USDT <span class="text-white font-bold">$94,838.48</span> <span class="text-upGreen">+2.84%</span></span>
+                <span class="text-textGray hidden sm:inline">24h Liq: -$148.2M</span>
+            </div>
+            <div class="flex items-center space-x-3 text-textGray">
+                <div class="bg-cardBg px-3 py-1 rounded-full text-xs">EVM...0f92</div>
+                <div class="bg-accent text-white text-xs px-2 py-0.5 rounded">PRO</div>
+            </div>
+        </header>
+
+        <!-- ВИДЖЕТЫ -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6">
+            
+            <!-- Карточка графика цены -->
+            <div class="xl:col-span-2 bg-cardBg rounded-xl p-5 border border-gray-800">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h2 class="text-textGray text-sm">BTC / USDT <span class="text-xs">Spot Aggregate</span></h2>
+                        <div class="flex items-end mt-1">
+                            <span class="text-3xl font-bold mr-3">$94,288.17</span>
+                            <span class="text-upGreen text-sm mb-1">+3.42% сегодня</span>
+                        </div>
+                    </div>
+                    <div class="flex space-x-1 text-xs">
+                        <button class="bg-gray-800 text-white px-2 py-1 rounded">1H</button>
+                        <button class="bg-accent text-white px-2 py-1 rounded">24H</button>
+                        <button class="bg-gray-800 text-textGray px-2 py-1 rounded">7D</button>
+                    </div>
                 </div>
-                <div class="text-3xl font-bold text-tgButton mb-4">$10</div>
-                <ul class="text-sm space-y-2 mb-6">
-                    <li class="flex items-center">
-                        <svg class="w-4 h-4 mr-2 text-tgButton" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        Доступ к статьям
-                    </li>
-                    <li class="flex items-center text-tgHint">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        Закрытый чат
-                    </li>
-                </ul>
-                <button onclick="mockPayment('Базовый')" class="w-full bg-tgButton text-tgButtonText font-medium py-3 rounded-xl active:scale-95 transition-transform">
-                    Выбрать за $10
-                </button>
+                <!-- Заглушка для графика (Кривая линия) -->
+                <div class="h-32 mt-4 relative w-full border-b border-gray-800/50">
+                    <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+                        <path d="M0,80 Q20,90 40,60 T80,70 T100,20" fill="none" stroke="#f7931a" stroke-width="2"/>
+                    </svg>
+                </div>
             </div>
 
-            <!-- Карточка: PRO тариф -->
-            <div class="bg-tgSecondaryBg rounded-2xl p-5 border-2 border-tgButton relative">
-                <div class="absolute -top-3 right-4 bg-tgButton text-tgButtonText text-xs font-bold px-3 py-1 rounded-full">
-                    ПОПУЛЯРНЫЙ
+            <!-- Карточка Ликвидаций -->
+            <div class="bg-cardBg rounded-xl p-5 border border-gray-800">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-white font-medium">Ликвидации за 24ч</h3>
+                    <div class="text-right">
+                        <div class="text-xs text-textGray">Суммарный объем</div>
+                        <div class="font-bold text-lg">$418.5M</div>
+                    </div>
                 </div>
-                <div class="flex justify-between items-center mb-2">
-                    <h2 class="text-lg font-semibold">PRO Доступ</h2>
-                    <span class="text-tgHint text-sm">Навсегда</span>
+                
+                <div class="mt-6 mb-2 flex justify-between text-xs">
+                    <span class="text-textGray">Индекс риска сквиза</span>
+                    <span class="text-accent font-bold">68.4 / 100</span>
                 </div>
-                <div class="text-3xl font-bold text-tgButton mb-4">$25</div>
-                <ul class="text-sm space-y-2 mb-6">
-                    <li class="flex items-center">
-                        <svg class="w-4 h-4 mr-2 text-tgButton" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        Доступ ко всем материалам
-                    </li>
-                    <li class="flex items-center">
-                        <svg class="w-4 h-4 mr-2 text-tgButton" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        Приватная группа
-                    </li>
-                </ul>
-                <button onclick="mockPayment('PRO')" class="w-full bg-tgButton text-tgButtonText font-medium py-3 rounded-xl active:scale-95 transition-transform shadow-lg shadow-tgButton/30">
-                    Выбрать за $25
-                </button>
+                <div class="w-full bg-gray-800 rounded-full h-1.5 mb-6">
+                    <div class="bg-accent h-1.5 rounded-full" style="width: 68%"></div>
+                </div>
+
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-downRed">Лонги: $286.2M</span>
+                    <span class="text-upGreen">Шорты: $132.3M</span>
+                </div>
+                <div class="w-full flex h-2 rounded-full overflow-hidden">
+                    <div class="bg-downRed w-2/3"></div>
+                    <div class="bg-upGreen w-1/3"></div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- ЭКРАН 2: ПРИВАТНЫЙ КОНТЕНТ -->
-    <div id="content-view" class="max-w-md mx-auto hidden fade-enter">
-        
-        <div class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 p-4 rounded-xl flex items-center mb-6 mt-4">
-            <svg class="w-6 h-6 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <!-- КАТЕГОРИИ И ГАЙДЫ -->
+        <div class="flex space-x-2 overflow-x-auto hide-scroll mb-6 text-sm">
+            <button class="bg-accent text-white px-4 py-1.5 rounded-full whitespace-nowrap">Все темы</button>
+            <button class="bg-cardBg text-textGray px-4 py-1.5 rounded-full whitespace-nowrap border border-gray-800">Основы крипты</button>
+            <button class="bg-cardBg text-textGray px-4 py-1.5 rounded-full whitespace-nowrap border border-gray-800">Трейдинг & Фьючерсы</button>
+            <button class="bg-cardBg text-textGray px-4 py-1.5 rounded-full whitespace-nowrap border border-gray-800">Безопасность</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Список гайдов (Левая колонка) -->
+            <div class="lg:col-span-2 space-y-4">
+                <h3 class="text-lg font-bold flex items-center mb-4">
+                    <span class="text-accent mr-2">📚</span> Рекомендуемые гайды
+                </h3>
+
+                <!-- Гайд 1 -->
+                <div class="bg-cardBg border border-gray-800 rounded-xl p-4 flex flex-col sm:flex-row gap-4 transition hover:border-gray-600 cursor-pointer">
+                    <div class="w-full sm:w-1/3 h-32 bg-gray-800 rounded-lg flex-shrink-0 relative overflow-hidden">
+                        <div class="absolute top-2 left-2 bg-black/60 px-2 py-0.5 rounded text-[10px] uppercase font-bold">Средний</div>
+                    </div>
+                    <div class="flex flex-col justify-between w-full">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <span class="text-accent text-xs font-bold flex items-center">★ 4.9 <span class="text-textGray font-normal ml-2">1,840 трейдеров изучили</span></span>
+                                <span class="bg-accent/20 text-accent text-[10px] px-2 py-0.5 rounded">ТОП ВЫБОР</span>
+                            </div>
+                            <h4 class="font-bold mt-1 text-lg leading-tight">Анатомия ликвидаций: как выживать на плечах x20-x50</h4>
+                            <p class="text-textGray text-xs mt-2 line-clamp-2">Психология маркетмейкеров, каскадные сквизы, кластерные плотности ордеров и выставление математически верного стоп-лосса.</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="text-xs text-upGreen">Фьючерсы & Риск-менеджмент</span>
+                            <button class="bg-accent text-white text-xs px-3 py-1.5 rounded-lg">Читать гайд ➔</button>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Гайд 2 -->
+                 <div class="bg-cardBg border border-gray-800 rounded-xl p-4 flex flex-col sm:flex-row gap-4 transition hover:border-gray-600 cursor-pointer">
+                    <div class="w-full sm:w-1/3 h-32 bg-gray-800 rounded-lg flex-shrink-0 relative overflow-hidden">
+                         <div class="absolute top-2 left-2 bg-upGreen/20 text-upGreen px-2 py-0.5 rounded text-[10px] uppercase font-bold">Простой (Free)</div>
+                    </div>
+                    <div class="flex flex-col justify-between w-full">
+                        <div>
+                            <span class="text-accent text-xs font-bold">★ 4.8</span>
+                            <h4 class="font-bold mt-1 text-lg leading-tight">Пошаговый сетап холодного кошелька Ledger & Tangem</h4>
+                            <p class="text-textGray text-xs mt-2 line-clamp-2">Защита сид-фразы от компрометации, проверка прошивок, мультиподпись.</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="text-xs text-upGreen">Безопасность активов</span>
+                            <button class="border border-gray-600 text-white text-xs px-3 py-1.5 rounded-lg">Изучить бесплатно</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIP Блок (Правая колонка) -->
             <div>
-                <p class="font-bold">Оплата подтверждена</p>
-                <p class="text-sm opacity-90">Тариф: <span id="active-tariff"></span></p>
-            </div>
-        </div>
+                <div class="bg-cardBg border border-accent/50 rounded-xl p-5 relative overflow-hidden">
+                    <!-- Декоративное свечение -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full blur-3xl"></div>
+                    
+                    <h3 class="text-xl font-bold mb-2">Закрытый VIP-клуб трейдеров</h3>
+                    <p class="text-textGray text-sm mb-4">Разблокируйте закрытые VIP-сигналы, ончейн-алерты китов, закрытый чат трейдеров и глубокие гайды без ограничений.</p>
+                    
+                    <ul class="space-y-2 mb-6 text-sm">
+                        <li class="flex items-center"><span class="text-upGreen mr-2">✓</span> Алерты крупных транзакций</li>
+                        <li class="flex items-center"><span class="text-upGreen mr-2">✓</span> Тепловая карта плотности ликвидаций</li>
+                        <li class="flex items-center"><span class="text-upGreen mr-2">✓</span> Прямые сессии разборов сделок</li>
+                    </ul>
 
-        <h2 class="text-xl font-bold mb-4">Секретные материалы</h2>
-        
-        <div class="space-y-3">
-            <div class="bg-tgSecondaryBg p-4 rounded-xl">
-                <h3 class="font-semibold mb-1">Урок 1: Введение</h3>
-                <p class="text-sm text-tgHint">Здесь располагается полезный контент, доступный только после оплаты.</p>
+                    <div class="flex justify-between items-center mt-auto">
+                        <div>
+                            <div class="text-xs text-textGray">Стоимость подписки</div>
+                            <div class="text-xl font-bold">от $19 <span class="text-sm text-textGray font-normal">/ мес</span></div>
+                        </div>
+                        <button class="bg-accent hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-xl transition shadow-lg shadow-accent/20">
+                            Выбрать тариф
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="bg-tgSecondaryBg p-4 rounded-xl">
-                <h3 class="font-semibold mb-1">Урок 2: Продвинутые техники</h3>
-                <p class="text-sm text-tgHint">Видео, ссылки на закрытые чаты и другие материалы.</p>
-            </div>
+            
         </div>
-
-        <button onclick="resetUI()" class="mt-8 text-sm text-tgHint w-full text-center py-2 active:opacity-70">
-            Сбросить (Вернуться к тарифами)
-        </button>
-    </div>
+    </main>
 
     <script>
-        // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
         tg.ready();
-        tg.expand(); // Разворачиваем на всю высоту
-
-        const paywallView = document.getElementById('paywall-view');
-        const contentView = document.getElementById('content-view');
-        const activeTariffSpan = document.getElementById('active-tariff');
-
-        // Имитация процесса оплаты
-        function mockPayment(tariffName) {
-            // Используем нативную кнопку Telegram
-            tg.MainButton.text = "ОБРАБОТКА ТРАНЗАКЦИИ...";
-            tg.MainButton.color = tg.themeParams.hint_color || "#999999";
-            tg.MainButton.show();
-            tg.MainButton.showProgress();
-
-            setTimeout(() => {
-                tg.MainButton.hideProgress();
-                tg.MainButton.hide();
-                
-                // Переключение экранов с анимацией
-                paywallView.classList.add('hidden');
-                paywallView.classList.remove('fade-enter-active');
-                
-                contentView.classList.remove('hidden');
-                // Небольшая задержка для срабатывания CSS-анимации
-                setTimeout(() => contentView.classList.add('fade-enter-active'), 50);
-                
-                activeTariffSpan.textContent = tariffName;
-            }, 1500);
-        }
-
-        function resetUI() {
-            contentView.classList.add('hidden');
-            contentView.classList.remove('fade-enter-active');
-            
-            paywallView.classList.remove('hidden');
-            setTimeout(() => paywallView.classList.add('fade-enter-active'), 50);
-        }
+        tg.expand();
     </script>
 </body>
 </html>
