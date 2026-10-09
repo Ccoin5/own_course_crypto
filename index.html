@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Приватный доступ</title>
+    
+    <!-- Подключение Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        /* Использование нативных переменных цвета Telegram */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .card {
+            background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        h2 { margin-top: 0; }
+        
+        .price {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--tg-theme-button-color, #3390ec);
+            margin: 12px 0;
+        }
+        
+        .btn {
+            background-color: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 8px;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.2s;
+        }
+        
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        /* Класс для скрытия элементов */
+        .hidden {
+            display: none;
+        }
+        
+        /* Стили для секретного контента */
+        .secret-data {
+            text-align: left;
+            font-family: monospace;
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ЭКРАН 1: Тарифы (Paywall) -->
+    <div id="paywall-screen">
+        <h2>Доступ к приложению</h2>
+        <p>Выберите тариф для оплаты в криптовалюте</p>
+        
+        <div class="card">
+            <h3>Базовый</h3>
+            <div class="price">$10 / мес</div>
+            <p style="font-size: 14px; opacity: 0.7;">Только чтение</p>
+            <button class="btn" onclick="simulatePayment(10, 'Базовый')">Оплатить USDT</button>
+        </div>
+        
+        <div class="card">
+            <h3>PRO Доступ</h3>
+            <div class="price">$25 / навсегда</div>
+            <p style="font-size: 14px; opacity: 0.7;">Полный функционал</p>
+            <button class="btn" onclick="simulatePayment(25, 'PRO')">Оплатить USDT</button>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 2: Закрытый контент (показывается после оплаты) -->
+    <div id="content-screen" class="hidden">
+        <h2>✅ Оплата прошла успешно</h2>
+        <p>Текущий тариф: <strong id="active-tariff-name">...</strong></p>
+        
+        <div class="card">
+            <h3>Секретная панель</h3>
+            <p>Этот контент доступен только оплатившим пользователям.</p>
+            
+            <div class="secret-data">
+> Загрузка данных...
+> Подключение к узлу...
+> Статус: OK
+            </div>
+        </div>
+        
+        <button class="btn" onclick="resetApp()" style="background-color: var(--tg-theme-destructive-text-color, #ff3b30);">Сбросить (Для тестов)</button>
+    </div>
+
+    <script>
+        // Инициализация объекта Telegram
+        const tg = window.Telegram.WebApp;
+        
+        // Сообщаем Telegram, что приложение готово и разворачиваем на весь экран
+        tg.ready();
+        tg.expand();
+
+        const paywallScreen = document.getElementById('paywall-screen');
+        const contentScreen = document.getElementById('content-screen');
+        const activeTariffName = document.getElementById('active-tariff-name');
+
+        // Функция-заглушка для имитации процесса оплаты
+        function simulatePayment(amount, tariffName) {
+            // Используем нативную главную кнопку Telegram внизу экрана для показа загрузки
+            tg.MainButton.text = "ОЖИДАНИЕ ТРАНЗАКЦИИ...";
+            tg.MainButton.color = "#888888"; // Серый цвет на время загрузки
+            tg.MainButton.show();
+            tg.MainButton.showProgress();
+
+            // Имитируем ожидание подтверждения из блокчейна (3 секунды)
+            setTimeout(() => {
+                tg.MainButton.hideProgress();
+                tg.MainButton.hide();
+                
+                // Нативное всплывающее уведомление
+                tg.showAlert(`Оплата $${amount} успешно подтверждена!`);
+                
+                // Скрываем тарифы, показываем контент
+                paywallScreen.classList.add('hidden');
+                contentScreen.classList.remove('hidden');
+                
+                // Обновляем текст тарифа
+                activeTariffName.innerText = tariffName;
+            }, 3000);
+        }
+
+        // Возврат на экран тарифов для удобства тестирования
+        function resetApp() {
+            contentScreen.classList.add('hidden');
+            paywallScreen.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
